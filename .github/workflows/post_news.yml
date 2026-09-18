@@ -1,0 +1,39 @@
+name: Yangiliklarni joylash
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  post-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodni olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install -r requirements.txt
+
+      - name: Botni ishga tushirish
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python main.py
+
+      - name: "seen_links.json faylini saqlash (o'zgargan bo'lsa)"
+        run: |
+          git config --global user.name "news-bot"
+          git config --global user.email "news-bot@users.noreply.github.com"
+          git add seen_links.json || true
+          git diff --cached --quiet || git commit -m "Joylangan yangiliklar ro'yxati yangilandi"
+          git push || true
