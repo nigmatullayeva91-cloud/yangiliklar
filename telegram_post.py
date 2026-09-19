@@ -13,20 +13,18 @@ def post_to_channel(text: str, image_bytes: bytes | None, source_link: str) -> b
         files = {"photo": ("news.jpg", image_bytes)}
         data = {
             "chat_id": CHANNEL_ID,
-            "caption": caption[:1024],  # Telegram caption chegarasi
+            "caption": caption[:1024],
             "parse_mode": "HTML",
         }
         try:
             resp = requests.post(url, data=data, files=files, timeout=60)
-            resp.raise_for_status()
             result = resp.json()
             if result.get("ok"):
                 return True
             print(f"[XATO] Telegram javobi: {result}")
-            return False
+            return _post_text_only(caption)
         except Exception as e:
             print(f"[XATO] Rasm bilan joylashda xatolik: {e}")
-            # Rasm bilan bo'lmasa, faqat matn bilan urinib ko'ramiz
             return _post_text_only(caption)
     else:
         return _post_text_only(caption)
@@ -41,7 +39,6 @@ def _post_text_only(text: str) -> bool:
     }
     try:
         resp = requests.post(url, data=data, timeout=30)
-        resp.raise_for_status()
         result = resp.json()
         if result.get("ok"):
             return True
