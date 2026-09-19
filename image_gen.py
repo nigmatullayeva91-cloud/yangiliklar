@@ -4,10 +4,16 @@ import urllib.parse
 # Pollinations.ai - to'liq bepul, API kaliti talab qilmaydi
 POLLINATIONS_URL = "https://image.pollinations.ai/prompt/{prompt}?width=1024&height=1024&nologo=true"
 
+# Ba'zi saytlar (masalan gazeta.uz) so'rovni faqat "brauzerga o'xshasa" qabul qiladi
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Referer": "https://www.gazeta.uz/",
+}
+
 
 def generate_image(prompt: str) -> bytes | None:
-    """Berilgan prompt asosida rasm yaratadi va uning baytlarini qaytaradi.
-    Muvaffaqiyatsiz bo'lsa None qaytaradi (bu holda rasmsiz, faqat matn joylanadi)."""
+    """Berilgan prompt asosida rasm yaratadi va uning baytlarini qaytaradi."""
     try:
         encoded_prompt = urllib.parse.quote(prompt)
         url = POLLINATIONS_URL.format(prompt=encoded_prompt)
@@ -25,9 +31,11 @@ def generate_image(prompt: str) -> bytes | None:
 def download_image(url: str) -> bytes | None:
     """Manbadagi tayyor rasmni yuklab oladi (agar RSS ichida rasm bo'lsa)."""
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(url, timeout=30, headers=BROWSER_HEADERS)
         resp.raise_for_status()
-        return resp.content
+        if resp.headers.get("content-type", "").startswith("image"):
+            return resp.content
+        return None
     except Exception as e:
         print(f"[XATO] Rasmni yuklab olishda xatolik: {e}")
         return None
