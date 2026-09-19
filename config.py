@@ -9,7 +9,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 # Bu yerga istalgancha RSS manba qo'shishingiz mumkin.
 # Manba RSS'ga ega ekanini brauzerda ochib tekshiring.
 RSS_SOURCES = [
-    "https://www.gazeta.uz/uz/rss/",
+    "https://www.gazeta.uz/oz/rss/",
     "https://www.gazeta.uz/oz/rss/",
     # Quyidagilarni o'zingiz tekshirib, ishlasa qo'shing:
     # "https://kun.uz/uz/rss",
