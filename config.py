@@ -23,5 +23,5 @@ MAX_NEWS_PER_RUN = int(os.environ.get("MAX_NEWS_PER_RUN", "3"))
 # Qaysi yangiliklar allaqachon joylanganini saqlaydigan fayl
 SEEN_FILE = "seen_links.json"
 
-# AI orqali matn qayta yozish uchun model (Groq, bepul)
-   GROQ_MODEL = "openai/gpt-oss-120b"
+# AI orqali matn qayta yozish uchun model (Groq, bepul) 
+GROQ_MODEL = "openai/gpt-oss-120b"
