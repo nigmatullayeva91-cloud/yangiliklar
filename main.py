@@ -5,7 +5,8 @@ Ish tartibi:
 1. RSS manbalardan yangiliklarni yig'adi
 2. Hali joylanmagan yangiliklarni tanlaydi
 3. Har birini AI yordamida kanal uslubida qayta yozadi
-4. Har biriga mos rasm yaratadi (yoki manbadagi rasmni oladi)
+4. Har biriga AI orqali mos rasm yaratadi (manbadagi rasm olinmaydi -
+   chunki unda gazeta.uz logotipi/suv belgisi bo'ladi)
 5. Telegram kanaliga joylaydi
 6. Joylangan yangilikni "ko'rilgan" deb belgilaydi (qayta joylanmasligi uchun)
 """
@@ -17,7 +18,7 @@ from config import BOT_TOKEN, CHANNEL_ID, MAX_NEWS_PER_RUN
 from fetch_news import fetch_all_news
 from seen_store import load_seen, save_seen
 from ai_rewrite import rewrite_news
-from image_gen import generate_image, download_image
+from image_gen import generate_image
 from telegram_post import post_to_channel
 
 
@@ -50,23 +51,17 @@ def main():
 
         print(f"\n--- Ishlanmoqda: {item['title'][:60]}...")
 
-        # 1) AI orqali qayta yozish
         ai_result = rewrite_news(item["title"], item["summary"])
         if ai_result:
             post_text = ai_result["post_text"]
             image_prompt = ai_result["image_prompt"]
         else:
             post_text = build_fallback_text(item["title"], item["summary"])
-            image_prompt = f"{item['title']}, news illustration, digital art"
+            image_prompt = f"{item['title']}, news illustration, digital art, no text, no logo"
 
-        # 2) Rasm tayyorlash: avval manbadagi rasmni sinaymiz, bo'lmasa AI bilan yaratamiz
-        image_bytes = None
-        if item.get("image"):
-            image_bytes = download_image(item["image"])
-        if not image_bytes:
-            image_bytes = generate_image(image_prompt)
+        # Rasm har doim AI orqali yaratiladi (manbadan olinmaydi - logo muammosi uchun)
+        image_bytes = generate_image(image_prompt)
 
-        # 3) Kanalga joylash
         success = post_to_channel(post_text, image_bytes, item["link"])
         if success:
             print("✅ Joylandi")
@@ -75,7 +70,7 @@ def main():
         else:
             print("❌ Joylanmadi, keyingisiga o'tildi")
 
-        time.sleep(3)  # Telegram limitlariga tegib ketmaslik uchun kichik pauza
+        time.sleep(3)
 
     save_seen(seen)
     print(f"\nTugadi. Jami joylangan: {posted_count} ta yangilik.")
